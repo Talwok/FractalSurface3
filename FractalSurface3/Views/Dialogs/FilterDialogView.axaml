@@ -1,0 +1,11 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogs="clr-namespace:FractalSurface3.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Width="500" Height="500"
+             x:Class="FractalSurface3.Views.Dialogs.FilterDialogView"
+             x:DataType="dialogs:FilterDialogViewModel">
+    Welcome to Avalonia!
+</UserControl>

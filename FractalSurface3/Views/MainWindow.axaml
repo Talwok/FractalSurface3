@@ -1,0 +1,306 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FractalSurface3.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:projects="clr-namespace:FractalSurface3.Services.Projects"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        MinWidth="800" MinHeight="600"
+        x:Class="FractalSurface3.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/fractal-surface.ico"
+        Title="FractalSurface"
+        ExtendClientAreaToDecorationsHint="True">
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    <DockPanel Margin="15 2 15 15">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Image Source="../Assets/fractal-surface.png" Width="20" Height="20"/>
+            <Menu Margin="5 0">
+                <MenuItem>
+                    <MenuItem.Header>
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <TextBlock Text="Файл"/>
+                            <avalonia:MaterialIcon Kind="File"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem.Items>
+                        <MenuItem HotKey="Ctrl+N"
+                                  Command="{CompiledBinding CreateProjectFileCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Spacing="8" Orientation="Horizontal">
+                                    <TextBlock Text="Новый проект"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem HotKey="Ctrl+O"
+                                  Command="{CompiledBinding OpenProjectFileCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Spacing="8" Orientation="Horizontal">
+                                    <TextBlock Text="Открыть"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem HotKey="Ctrl+S"
+                                  Command="{CompiledBinding SaveProjectFileCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Spacing="8" Orientation="Horizontal">
+                                    <TextBlock Text="Сохранить"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem Command="{CompiledBinding SaveProjectFileAsCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Spacing="8" Orientation="Horizontal">
+                                    <TextBlock Text="Сохранить как"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem HotKey="Ctrl+Q"
+                                  Command="{CompiledBinding ExitCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Spacing="8" Orientation="Horizontal">
+                                    <TextBlock Text="Выход"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem.Items>
+                </MenuItem>
+                
+                <MenuItem Command="{CompiledBinding ShowFilterDialogCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <TextBlock Text="Фильтр"/>
+                            <avalonia:MaterialIcon Kind="Filter"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Command="{CompiledBinding ShowAnalysisDialogCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <TextBlock Text="Анализ"/>
+                            <avalonia:MaterialIcon Kind="Analytics"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Command="{CompiledBinding ShowReportDialogCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <TextBlock Text="Отчёт"/>
+                            <avalonia:MaterialIcon Kind="Printer"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Command="{CompiledBinding ShowSettingsDialogCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <TextBlock Text="Настройки"/>
+                            <avalonia:MaterialIcon Kind="Cog"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>    
+        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="3*" MinWidth="500"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <TextBox Grid.Row="0" Grid.Column="0" Watermark="Поиск по имени" 
+                     Text="">
+                <TextBox.InnerRightContent>
+                    <Button ToolTip.Tip="Очистить поле поиска"
+                            Theme="{StaticResource TransparentButton}"
+                            Command="{CompiledBinding ClearSearchTextCommand}">
+                        <avalonia:MaterialIcon Kind="Remove"/>
+                    </Button>
+                </TextBox.InnerRightContent>
+            </TextBox>
+            <Menu Grid.Row="1" Grid.Column="0">
+                <MenuItem ToolTip.Tip="Выделить все файлы"
+                          Command="{CompiledBinding SelectAllFilesCommand}">
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="CheckboxMultipleOutline"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem ToolTip.Tip="Снять выделение со всех файлов"
+                          Command="{CompiledBinding UnselectAllFilesCommand}">
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="CheckboxMultipleBlankOutline"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem ToolTip.Tip="Добавить файлы"
+                          Command="{CompiledBinding ImportFilesCommand}">
+                    <MenuItem.CommandParameter>
+                        <system:Boolean>
+                            False
+                        </system:Boolean>
+                    </MenuItem.CommandParameter>
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Add"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem ToolTip.Tip="Убрать выделенные файлы из списка"
+                          Command="{CompiledBinding RemoveFilesCommand}">
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Remove"/>
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>
+            <ListBox SelectionMode="Multiple, Toggle" Grid.Row="2" Grid.Column="0" 
+                     ItemsSource=""
+                     SelectedItems="">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel ToolTip.Tip="">
+                            <avalonia:MaterialIcon DockPanel.Dock="Left" Kind="Image"/>
+                            <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" 
+                                       Text=""/>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <WrapPanel VerticalAlignment="Center" Grid.Row="3" Grid.Column="0">
+                <TextBlock FontSize="13" Foreground="#777777" Margin="4 0" Text=""/>
+                <TextBlock FontSize="13" Foreground="#777777" Margin="4 0" Text=""/>
+                <TextBlock FontSize="13" Foreground="#777777" Margin="4 0" Text=""/>
+            </WrapPanel>
+            <GridSplitter Background="Transparent" Grid.Row="0" Grid.RowSpan="4" Grid.Column="1"/>
+            <Menu Grid.Row="0" Grid.Column="2" Height="32">
+                <MenuItem>
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Crop"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20"  Kind="FileRefresh"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Undo"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Redo"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="FolderOpen"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Pan"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="Binoculars"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="RotateLeft"/>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem >
+                    <MenuItem.Header>
+                        <avalonia:MaterialIcon Height="20" Width="20" Kind="RotateRight"/>
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>
+            <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" >
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+                    <avalonia:MaterialIcon Width="300" Height="300"
+                                           Foreground="#444444"
+                                           Kind="Image"/>
+                    <TextBlock HorizontalAlignment="Center"
+                               Foreground="#777777"
+                               Text="Нет выбранных изображений."/>
+                </StackPanel>
+                
+                <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            ItemsSource=""
+                            SelectedItem="">
+                <TabControl.Template>
+                    <ControlTemplate>
+                        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Background="{TemplateBinding Background}"
+                                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left"
+                                                
+                                                Orientation="Horizontal"
+                                                Spacing="6" Margin="0 0 10 0">
+                                        <Button Command="{CompiledBinding MoveTabSelectionLeftCommand}"
+                                                Theme="{StaticResource TransparentButton}">
+                                            <avalonia:MaterialIcon Height="20" Width="20" Kind="ChevronLeft"/>
+                                        </Button>
+                                        <Button Command="{CompiledBinding MoveTabSelectionRightCommand}"
+                                                Theme="{StaticResource TransparentButton}">
+                                            <avalonia:MaterialIcon Height="20" Width="20" Kind="ChevronRight"/>
+                                        </Button>
+                                    </StackPanel>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Hidden">
+                                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                        DockPanel.Dock="{TemplateBinding TabStripPlacement}"/>
+                                    </ScrollViewer>
+                                </DockPanel>
+                                
+                                <ContentPresenter Name="PART_SelectedContentHost"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Content="{TemplateBinding SelectedContent}"
+                                                  ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                            </DockPanel>
+                        </Border>
+                    </ControlTemplate>
+                </TabControl.Template>
+                <!-- <TabControl.ItemTemplate> -->
+                <!--     <DataTemplate DataType="vm:ImageFileViewModel"> -->
+                <!--         <DockPanel ToolTip.Tip="{CompiledBinding StorageFile.Name}"> -->
+                <!--             <avalonia:MaterialIcon DockPanel.Dock="Left" Kind="Image"/> -->
+                <!--             <TextBlock FontSize="14" Width="100" -->
+                <!--                        TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" -->
+                <!--                        Text="{CompiledBinding StorageFile.Name}"/> -->
+                <!--             <Button DockPanel.Dock="Right" Width="25" Height="20" -->
+                <!--                     Command="{CompiledBinding UntoggleCommand}" -->
+                <!--                     Theme="{StaticResource TransparentButton}"> -->
+                <!--                 <avalonia:MaterialIcon Kind="Close"/> -->
+                <!--             </Button> -->
+                <!--         </DockPanel> -->
+                <!--     </DataTemplate> -->
+                <!-- </TabControl.ItemTemplate> -->
+            </TabControl>
+            </Grid>
+            
+            <WrapPanel VerticalAlignment="Center" Grid.Row="3" Grid.Column="2">
+                
+            </WrapPanel>
+        </Grid>
+    </DockPanel>
+</Window>
